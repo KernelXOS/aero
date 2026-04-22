@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { LatLng, RouteInfo, PriceBreakdown, PointSelectionMode } from '../../types'
 import { PriceService } from '../lib/priceService'
 
@@ -42,6 +43,8 @@ function Icon({
     | 'flag'
     | 'alert'
     | 'check'
+    | 'minimize'
+    | 'expand'
   className?: string
 }) {
   const common = {
@@ -127,6 +130,21 @@ function Icon({
       return (
         <svg {...common}>
           <path d="M5 12l5 5 9-11" />
+        </svg>
+      )
+    case 'minimize':
+      return (
+        <svg {...common}>
+          <path d="M5 12h14" />
+        </svg>
+      )
+    case 'expand':
+      return (
+        <svg {...common}>
+          <path d="M4 14h6v6" />
+          <path d="M20 10h-6V4" />
+          <path d="M14 10l7-7" />
+          <path d="M10 14l-7 7" />
         </svg>
       )
   }
@@ -250,6 +268,7 @@ export default function RoutePanel({
   onShareQuote,
   isCalculating,
 }: RoutePanelProps) {
+  const [collapsed, setCollapsed] = useState(false)
   const canCalculate = Boolean(pickup && delivery) && !isCalculating
   const canSwap = Boolean(pickup && delivery) && !isCalculating
   const showResults = route && price && !isCalculating
@@ -257,8 +276,50 @@ export default function RoutePanel({
     price && price.total === price.minimumCharge &&
     price.distanceCost + price.basePrice < price.minimumCharge
 
+  if (collapsed) {
+    return (
+      <div className="glass flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 md:w-auto animate-fadeUp">
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-brand-gradient text-white">
+          <Icon name="sparkle" className="h-4 w-4" />
+        </div>
+        <div className="min-w-0 flex-1 leading-tight">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+            Cotizador
+          </p>
+          {showResults && price ? (
+            <p className="text-sm font-bold tabular-nums text-slate-900">
+              {PriceService.formatCurrency(price.total)}
+              <span className="ml-1 text-[11px] font-medium text-slate-500">
+                · {formatDistance(route!.distance)}
+              </span>
+            </p>
+          ) : (
+            <p className="truncate text-sm font-semibold text-slate-800">
+              {pickup && delivery
+                ? 'Listo para calcular'
+                : pickup
+                  ? 'Falta el destino'
+                  : delivery
+                    ? 'Falta el origen'
+                    : 'Selecciona puntos'}
+            </p>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => setCollapsed(false)}
+          aria-label="Expandir panel"
+          title="Expandir panel"
+          className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 focus-ring"
+        >
+          <Icon name="expand" className="h-4 w-4" />
+        </button>
+      </div>
+    )
+  }
+
   return (
-    <div className="glass w-full overflow-hidden rounded-2xl md:w-[28rem]">
+    <div className="glass w-full overflow-hidden rounded-2xl md:w-[28rem] animate-fadeUp">
       <div className="relative px-6 pb-5 pt-6">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-brand-gradient opacity-[0.08]" />
         <div className="relative flex items-start justify-between gap-3">
@@ -274,6 +335,15 @@ export default function RoutePanel({
               Marca dos puntos en el mapa y obtén tu tarifa al instante.
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => setCollapsed(true)}
+            aria-label="Contraer panel"
+            title="Contraer panel"
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white/80 text-slate-600 transition hover:bg-white hover:text-slate-900 focus-ring"
+          >
+            <Icon name="minimize" className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
