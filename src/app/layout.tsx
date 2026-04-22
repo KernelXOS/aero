@@ -1,10 +1,18 @@
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import 'leaflet/dist/leaflet.css'
 
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
 export const metadata: Metadata = {
-  title: 'Transporte Fletes - Calculadora de Rutas',
-  description: 'Calcula el costo de tu flete en tiempo real',
+  title: 'Aero · Calculadora de Fletes',
+  description:
+    'Planifica rutas y cotiza fletes en tiempo real sobre un mapa interactivo.',
 }
 
 export default function RootLayout({
@@ -13,8 +21,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es">
-      <body className="bg-gradient-to-br from-blue-50 to-gray-100">
+    <html lang="es" className={inter.variable}>
+      <body className="font-sans bg-slate-50 text-slate-900 antialiased">
         {children}
       </body>
     </html>
